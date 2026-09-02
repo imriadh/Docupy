@@ -1,0 +1,12 @@
+__pycache__/
+.ipynb_checkpoints/
+.streamlit/
+.venv/
+venv/
+env/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+
