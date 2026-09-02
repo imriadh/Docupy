@@ -37,5 +37,5 @@ streamlit run app.py
 This app is ready for Streamlit Community Cloud.
 
 Set the app entry point to `app.py` and include `requirements.txt` in the repository root.
-# Docupy
+
 # Docupy
