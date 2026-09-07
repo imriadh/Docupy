@@ -20,32 +20,56 @@ st.set_page_config(
 st.title("📚 DocuPy Converter")
 st.markdown("Upload files to merge and convert between **Jupyter Notebook (`.ipynb`)** and **Markdown (`.md`)** formats.")
 
+# Text input option
+st.subheader("📝 Direct Text Input")
+text_input = st.text_area(
+    "Or paste your text content here (optional):",
+    height=200,
+    placeholder="Paste your markdown or code content here...",
+)
+
 uploaded_files = st.file_uploader(
     "Choose text, markdown, or notebook files",
     type=["txt", "md", "ipynb"],
     accept_multiple_files=True,
 )
 
-if uploaded_files:
+# Combine text input with uploaded files
+if uploaded_files or text_input.strip():
     st.subheader("⚙️ Settings & Priority")
     st.caption("Files are merged from top to bottom. The file at **Index 0** will have highest priority.")
 
+    # Create a list to hold all content sources (files + text input)
+    content_sources = []
+    
+    # Add text input as a virtual file if provided
+    if text_input.strip():
+        # Create a BytesIO object to simulate a file for the text input
+        from io import BytesIO
+        text_file = BytesIO(text_input.encode("utf-8"))
+        text_file.name = "pasted_text.txt"
+        content_sources.append(text_file)
+    
+    # Add uploaded files
     current_names = [f.name for f in uploaded_files]
     file_map = {f.name: f for f in uploaded_files}
-
+    
     ordered_names = st.multiselect(
         "Re-order files to set priority (First item selected = Index 0):",
         options=current_names,
         default=current_names,
     )
-
+    
     ordered_files = [file_map[name] for name in ordered_names if name in file_map]
+    
+    # Combine text input (if any) with ordered files
+    all_content = content_sources + ordered_files
 
-    if ordered_files:
+    if all_content:
         st.write("---")
 
-        has_ipynb = any(f.name.endswith(".ipynb") for f in ordered_files)
-        has_txt_md = any(f.name.endswith((".txt", ".md")) for f in ordered_files)
+        has_ipynb = any(f.name.endswith(".ipynb") for f in all_content)
+        has_txt_md = any(f.name.endswith((".txt", ".md")) for f in all_content)
 
         if has_ipynb and has_txt_md:
             st.warning("⚠️ You uploaded both `.ipynb` and `.txt`/`.md` files. Please upload files of the same type for uniform conversion.")
@@ -71,20 +95,20 @@ if uploaded_files:
                         if export_format == "Jupyter Notebook (.ipynb)":
                             if not output_filename.endswith(".ipynb"):
                                 output_filename += ".ipynb"
-                            file_bytes = build_ipynb_bytes(ordered_files)
+                            file_bytes = build_ipynb_bytes(all_content)
                             mime_type = "application/x-ipynb+json"
                         else:
                             if not output_filename.endswith(".md"):
                                 output_filename += ".md"
 
                             if has_ipynb:
-                                file_bytes = build_md_from_ipynb_bytes(ordered_files)
+                                file_bytes = build_md_from_ipynb_bytes(all_content)
                             else:
-                                file_bytes = build_md_bytes(ordered_files)
+                                file_bytes = build_md_bytes(all_content)
 
                             mime_type = "text/markdown"
 
-                        st.success(f"Successfully processed {len(ordered_files)} file(s)!")
+                        st.success(f"Successfully processed {len(all_content)} content item(s)!")
 
                         st.download_button(
                             label=f"📥 Download {export_format.split()[0]} File",
@@ -95,4 +119,4 @@ if uploaded_files:
                     except Exception as e:
                         st.error(f"An error occurred during conversion: {str(e)}")
 else:
-    st.info("Please upload at least one `.txt`, `.md`, or `.ipynb` file to begin.")
+    st.info("Please upload at least one `.txt`, `.md`, or `.ipynb` file, or paste text in the input box to begin.")
