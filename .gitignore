@@ -1,12 +1,44 @@
+```
+# Compiled and build artifacts
+*.pyc
 __pycache__/
-.ipynb_checkpoints/
-.streamlit/
+*.o
+*.obj
+*.out
+*.so
+*.dll
+*.exe
+*.class
+*.a
+
+# Dependencies
 .venv/
 venv/
-env/
-*.pyc
-*.pyo
-*.pyd
-*.db
-*.sqlite3
+.env
+.env.local
+.env.*
 
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+*.swo
+
+# Editors
+.vscode/
+.idea/
+
+# Build directories
+build/
+dist/
+target/
+.mypy_cache/
+.pytest_cache/
+coverage/
+htmlcov/
+.gradle/
+
+# System files
+.DS_Store
+Thumbs.db
+```
